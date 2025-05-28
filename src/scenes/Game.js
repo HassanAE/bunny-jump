@@ -51,11 +51,19 @@ export default class Game extends Phaser.Scene {
     this.player.body.checkCollision.right = false;
 
     this.carrots = this.physics.add.group({classType: Carrot});
-    this.carrots.get(240, 320, 'carrot');
+    //this.carrots.get(240, 320, 'carrot');
     //const carrot = new Carrot(this, 240, 320, 'carrot');
     //this.add.existing(carrot);
 
     this.physics.add.collider(this.platforms, this.carrots);
+
+    this.physics.add.overlap(
+      this.player,
+      this.carrots,
+      this.collectCarrots,
+      null,
+      this
+    );
 
     this.cameras.main.startFollow(this.player)
     .setDeadzone(this.scale.width * 1.5);
@@ -110,9 +118,18 @@ export default class Game extends Phaser.Scene {
 
     /** @type {Phaser.Physics.Arcade.Sprite} */
     const carrot = this.carrots.get(sprite.x, y, 'carrot');
-    this.add.existing(carrot);
+    carrot.setActive(true);
+    carrot.setVisible(true);
 
+    this.add.existing(carrot);
+    
     carrot.body.setSize(carrot.width, carrot.hight);
+    this.physics.world.enable(carrot);
     return carrot;
+  }
+
+  collectCarrots(player, carrot) {
+    this.carrots.killAndHide(carrot);
+    this.physics.world.disableBody(carrot.body);
   }
 }
